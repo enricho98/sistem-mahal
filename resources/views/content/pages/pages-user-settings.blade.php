@@ -20,12 +20,13 @@
         </div>
 
         <div class="table-responsive text-nowrap">
-            <table class="table">
+            <table class="table" id="userTable">
                 <thead>
                     <tr>
                         <th>Name</th>
                         <th>Role</th>
                         <th>Status</th>
+                        <th>Created At</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -64,16 +65,33 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row g-2">
+                        <div class="col mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <select id="roleSelect" class="form-control">
+                                    <option value="" disabled selected>Select Role</option>
+                                    <!-- Populate roles dynamically -->
+                                    <option value="admin">Admin</option>
+                                    <option value="security">Security</option>
+                                    <option value="security-manager">Security Manager</option>
+                                    <!-- Add other roles here -->
+                                </select>
+                                <label for="roleSelect">Role</label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-primary" onclick="createUser()">Save changes</button>
                 </div>
             </div>
         </div>
     </div>
+
 @endsection
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {
         // AJAX request to fetch user data
@@ -84,12 +102,13 @@
                 var userTableBody = $('#userTableBody');
                 userTableBody.empty(); // Clear the table body
 
-                // Loop through the response and add rows to the table
+                // Populate the table with user data
                 $.each(response, function(index, user) {
                     var userRow = '<tr>' +
                         '<td>' + user.name + '</td>' +
-                        '<td>' + user.role + '</td>' +
-                        '<td>' + user.status + '</td>' +
+                        '<td>' + - +'</td>' +
+                        '<td>' + user.status_label + '</td>' +
+                        '<td>' + user.created_at_formatted + '</td>' +
                         '<td>' +
                         '<button class="btn btn-sm btn-primary">Edit</button> ' +
                         '<button class="btn btn-sm btn-danger">Delete</button>' +
@@ -97,10 +116,56 @@
                         '</tr>';
                     userTableBody.append(userRow);
                 });
+
+                // Initialize DataTable after data has been appended
+                $('#userTable').DataTable({
+                    paging: true,
+                    searching: true,
+                    ordering: true
+                });
             },
             error: function(xhr, status, error) {
                 console.error('Error fetching users:', error);
             }
         });
     });
+
+
+    function createUser() {
+        const name = document.getElementById('nameLarge').value;
+        const email = document.getElementById('emailLarge').value;
+        const password = document.getElementById('password').value;
+        const role = document.getElementById('roleSelect').value;
+
+        // Validate inputs
+        if (!name || !email || !password || !role) {
+            alert("Please fill in all fields.");
+            return;
+        }
+
+        // Send AJAX request to create the user
+        fetch('/pages/account-settings-account/add-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}', // Include CSRF token
+                },
+                body: JSON.stringify({
+                    name: name,
+                    email: email,
+                    password: password,
+                    role: role,
+                }),
+            })
+            .then(response => {
+                console.log(response); // Log the full response object
+                if (!response.ok) {
+                    return response.text().then(text => { // Get response text to see the error
+                        throw new Error('Network response was not ok: ' + response.status + ', ' + text);
+                    });
+                }
+                return response.json();
+            })
+
+    }
 </script>

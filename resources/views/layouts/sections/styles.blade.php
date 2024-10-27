@@ -12,7 +12,13 @@
 <link rel="stylesheet" href="{{ asset(mix('assets/css/demo.css')) }}" />
 <!-- Vendors CSS -->
 <link rel="stylesheet" href="{{ asset(mix('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css')) }}" />
-
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+<style>
+    /* Add margin to DataTables container */
+    .dataTables_wrapper {
+        margin: 10px;
+    }
+</style>
 <!-- Vendor Styles -->
 @yield('vendor-style')
 

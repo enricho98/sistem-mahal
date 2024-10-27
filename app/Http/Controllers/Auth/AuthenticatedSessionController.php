@@ -21,28 +21,32 @@ class AuthenticatedSessionController extends Controller
         return view('content.authentications.auth-login-basic');
 
     }
+    public function index()
+    {
+        \Log::info('User accessing account settings:', ['user' => auth()->user()]);
+        return view('content.pages.pages-user-settings');
+    }
 
     public function store(Request $request)
     {
-        // Validate login credentials
+        // Validasi input
         $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+            'email' => 'required|string',
+            'password' => 'required|string',
         ]);
 
-        // Attempt to log the user in
-        if (Auth::attempt($request->only('email', 'password'))) {
-            // Regenerate the session to prevent session fixation attacks
-            $request->session()->regenerate();
+        // Tentukan field untuk autentikasi
+        $field = filter_var($request->email, FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
+        $credentials = [$field => $request->email, 'password' => $request->password];
 
-            // Redirect to the dashboard
-            return redirect()->route('dashboard.analytics');
+        // Mencoba autentikasi
+        if (Auth::attempt($credentials)) {
+            // Logika setelah login berhasil
+            return redirect()->intended('/dashboard/analytics'); // Atau ke rute lain sesuai keinginan
         }
 
-        // If authentication fails, redirect back with an error message
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ]);
+        // Kembali dengan error jika gagal
+        return redirect()->back()->with('error', 'Invalid credentials!')->withInput();
     }
 
     public function destroy(Request $request)

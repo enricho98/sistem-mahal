@@ -18,7 +18,7 @@ use App\Http\Controllers\layouts\Container;
 use App\Http\Controllers\layouts\Fluid;
 use App\Http\Controllers\layouts\WithoutMenu;
 use App\Http\Controllers\layouts\WithoutNavbar;
-use App\Http\Controllers\pages\AccountSettingsAccount;
+use App\Http\Controllers\pages\AccountSettingsAccountController;
 use App\Http\Controllers\pages\AccountSettingsConnections;
 use App\Http\Controllers\pages\AccountSettingsNotifications;
 use App\Http\Controllers\pages\MiscError;
@@ -46,19 +46,20 @@ use App\Http\Controllers\user_interface\Typography;
 use Illuminate\Support\Facades\Route;
 
 // Main Page Route
-Route::get('/', [LoginBasic::class, 'index'])->name('auth-login-basic');
 
-Route::get('/dashboard/analytics', [Analytics::class, 'index'])->name('dashboard.analytics');
-// Route::get('/login', [LoginBasic::class, 'index'])->name('login');
+//User Management
+Route::get('/', [LoginBasic::class, 'index'])->name('auth-login-basic');
 Route::get('login', [AuthenticatedSessionController::class, 'create'])->middleware('guest')->name('login');
 Route::post('login', [AuthenticatedSessionController::class, 'store'])->middleware('guest');
 Route::get('/auth/login-basic', [LoginBasic::class, 'index'])->name('auth-login-basic');
 Route::post('/auth/login-basic', [LoginBasic::class, 'login'])->name('login.perform');
+Route::middleware(['auth'])->group(function () {
 
-//User Management
-Route::get('/pages/account-settings-account', [AccountSettingsAccount::class, 'index'])->name('pages-user-settings');
-Route::get('/pages/account-settings-account/ajax', [AccountSettingsAccount::class, 'ajaxGetUser'])->name('pages-user-settings-ajax');
-
+    Route::get('/dashboard/analytics', [Analytics::class, 'index'])->name('dashboard.analytics');
+    Route::get('/pages/account-settings-account', [AccountSettingsAccountController::class, 'index'])->name('pages-user-settings');
+    Route::get('/pages/account-settings-account/ajax', [AccountSettingsAccountController::class, 'ajaxGetUser'])->name('pages-user-settings-ajax');
+    Route::post('/pages/account-settings-account/add-user', [AccountSettingsAccountController::class, 'createUser'])->name('pages-user-settings-create-user');
+});
 // Logout route
 Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth')->name('logout');
 
@@ -92,7 +93,7 @@ Route::get('/ui/collapse', [Collapse::class, 'index'])->name('ui-collapse');
 Route::get('/ui/dropdowns', [Dropdowns::class, 'index'])->name('ui-dropdowns');
 Route::get('/ui/footer', [Footer::class, 'index'])->name('ui-footer');
 Route::get('/ui/list-groups', [ListGroups::class, 'index'])->name('ui-list-groups');
-Route::get('/ui/modals', [ ::class, 'index'])->name('ui-modals');
+Route::get('/ui/modals', [Modals::class, 'index'])->name('ui-modals');
 Route::get('/ui/navbar', [Navbar::class, 'index'])->name('ui-navbar');
 Route::get('/ui/offcanvas', [Offcanvas::class, 'index'])->name('ui-offcanvas');
 Route::get('/ui/pagination-breadcrumbs', [PaginationBreadcrumbs::class, 'index'])->name('ui-pagination-breadcrumbs');

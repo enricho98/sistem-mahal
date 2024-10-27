@@ -4,19 +4,11 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
-
-class YourModel extends Model
-{
-    use SoftDeletes;
-
-    // Your model code...
-}
 
 class User extends Authenticatable
 {
@@ -31,8 +23,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'status',
     ];
-
+    protected $appends = ['status_label'];
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -42,6 +35,16 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    /**
+     * Accessor for status label.
+     *
+     * @return string
+     */
+    public function getStatusLabelAttribute()
+    {
+        return $this->status == 1 ? 'Active' : 'Non-Active';
+    }
 
     /**
      * The attributes that should be cast.
