@@ -54,7 +54,7 @@ class AccountSettingsAccountController extends Controller
         ]);
 
         // Assign role to user
-        $user->assignRole($request->role);
+        // $user->assignRole($request->role);
 
         return response()->json(['message' => 'User created successfully!'], 201);
     }
